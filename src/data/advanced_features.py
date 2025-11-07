@@ -144,24 +144,43 @@ class QuantitativeFeatureEngine:
     
     @staticmethod
     def interaction_features(features: pd.DataFrame) -> pd.DataFrame:
-        features = features.copy()
+        # Create a clean copy with sequential index to avoid any index issues
+        features = features.reset_index(drop=True).copy()
         
         if 'moneyness' in features.columns and 'tte' in features.columns:
+            # Get 1D arrays explicitly
+            moneyness = features['moneyness'].to_numpy().flatten()
+            tte = features['tte'].to_numpy().flatten()
+            sqrt_tte = features['sqrt_tte'].to_numpy().flatten()
+            log_moneyness = features['log_moneyness'].to_numpy().flatten()
+            log_tte = features['log_tte'].to_numpy().flatten()
+            atm_distance = features['atm_distance'].to_numpy().flatten()
+            
             if 'moneyness_tte' not in features.columns:
-                features['moneyness_tte'] = features['moneyness'] * features['tte']
-            features['moneyness_sqrt_tte'] = features['moneyness'] * features['sqrt_tte']
-            features['log_moneyness_log_tte'] = features['log_moneyness'] * features['log_tte']
-            features['atm_distance_tte'] = features['atm_distance'] * features['tte']
+                features['moneyness_tte'] = moneyness * tte
+            features['moneyness_sqrt_tte'] = moneyness * sqrt_tte
+            features['log_moneyness_log_tte'] = log_moneyness * log_tte
+            features['atm_distance_tte'] = atm_distance * tte
         
         if 'spread_pct' in features.columns and 'tte' in features.columns:
-            features['spread_tte'] = features['spread_pct'] * features['tte']
-            features['spread_sqrt_tte'] = features['spread_pct'] * features['sqrt_tte']
+            spread_pct = features['spread_pct'].to_numpy().flatten()
+            tte = features['tte'].to_numpy().flatten()
+            sqrt_tte = features['sqrt_tte'].to_numpy().flatten()
+            
+            features['spread_tte'] = spread_pct * tte
+            features['spread_sqrt_tte'] = spread_pct * sqrt_tte
         
         if 'log_volume' in features.columns and 'moneyness' in features.columns:
-            features['volume_moneyness'] = features['log_volume'] * features['moneyness']
+            log_volume = features['log_volume'].to_numpy().flatten()
+            moneyness = features['moneyness'].to_numpy().flatten()
+            
+            features['volume_moneyness'] = log_volume * moneyness
         
         if 'order_imbalance' in features.columns and 'spread_pct' in features.columns:
-            features['imbalance_spread'] = features['order_imbalance'] * features['spread_pct']
+            order_imbalance = features['order_imbalance'].to_numpy().flatten()
+            spread_pct = features['spread_pct'].to_numpy().flatten()
+            
+            features['imbalance_spread'] = order_imbalance * spread_pct
         
         return features
     

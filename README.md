@@ -418,15 +418,3 @@ Educational resource demonstrating best practices and modern techniques.
 MIT License - Genius should be shared.
 
 ---
-
-**VolatilityForge: Genius Edition**
-
-*Where theoretical elegance meets engineering mastery.*
-
-*47 modules. 11,314 lines. Infinite impact.*
-
----
-
-*Built with precision. Engineered with passion. Architected with genius.*
-
-*"The best code is the code that makes you think: 'I wish I wrote that.'"*
