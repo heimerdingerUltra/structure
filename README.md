@@ -1,5 +1,4 @@
-# VolatilityForge: Genius Edition
-## When Senior Engineers at Google, Meta, and NVIDIA See This Code, They Know
+# VolatilityForge: Preprod Edition
 
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.1+-red.svg)](https://pytorch.org/)
