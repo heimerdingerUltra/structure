@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
 from enum import Enum
+from typing import Dict, List, Optional
 
 
 class ModelType(Enum):
@@ -17,7 +17,7 @@ class ModelConfig:
     model_type: ModelType
     n_features: int
     hyperparameters: Dict
-    
+
     @property
     def name(self) -> str:
         return self.model_type.value
@@ -33,15 +33,15 @@ class TabPFNConfig:
     max_samples: int = 1000
     rope_theta: float = 10000.0
     attention_dropout: float = 0.0
-    
+
     def to_dict(self) -> Dict:
         return {
-            'd_model': self.d_model,
-            'n_layers': self.n_layers,
-            'n_heads': self.n_heads,
-            'mlp_ratio': self.mlp_ratio,
-            'dropout': self.dropout,
-            'max_samples': self.max_samples
+            "d_model": self.d_model,
+            "n_layers": self.n_layers,
+            "n_heads": self.n_heads,
+            "mlp_ratio": self.mlp_ratio,
+            "dropout": self.dropout,
+            "max_samples": self.max_samples,
         }
 
 
@@ -54,14 +54,14 @@ class MambaConfig:
     dropout: float = 0.1
     dt_rank: str = "auto"
     conv_kernel: int = 3
-    
+
     def to_dict(self) -> Dict:
         return {
-            'd_model': self.d_model,
-            'n_layers': self.n_layers,
-            'd_state': self.d_state,
-            'expand': self.expand,
-            'dropout': self.dropout
+            "d_model": self.d_model,
+            "n_layers": self.n_layers,
+            "d_state": self.d_state,
+            "expand": self.expand,
+            "dropout": self.dropout,
         }
 
 
@@ -72,13 +72,13 @@ class xLSTMConfig:
     use_mlstm: bool = True
     dropout: float = 0.1
     stabilization: str = "group_norm"
-    
+
     def to_dict(self) -> Dict:
         return {
-            'hidden_size': self.hidden_size,
-            'n_layers': self.n_layers,
-            'use_mlstm': self.use_mlstm,
-            'dropout': self.dropout
+            "hidden_size": self.hidden_size,
+            "n_layers": self.n_layers,
+            "use_mlstm": self.use_mlstm,
+            "dropout": self.dropout,
         }
 
 
@@ -90,14 +90,14 @@ class HyperMixerConfig:
     expansion_factor: int = 4
     dropout: float = 0.1
     hyper_dim: int = 32
-    
+
     def to_dict(self) -> Dict:
         return {
-            'dim': self.dim,
-            'n_blocks': self.n_blocks,
-            'patch_size': self.patch_size,
-            'expansion_factor': self.expansion_factor,
-            'dropout': self.dropout
+            "dim": self.dim,
+            "n_blocks": self.n_blocks,
+            "patch_size": self.patch_size,
+            "expansion_factor": self.expansion_factor,
+            "dropout": self.dropout,
         }
 
 
@@ -111,14 +111,14 @@ class TTTConfig:
     mini_batch_size: int = 16
     n_inner_steps: int = 1
     lr_inner: float = 0.01
-    
+
     def to_dict(self) -> Dict:
         return {
-            'd_model': self.d_model,
-            'n_layers': self.n_layers,
-            'n_heads': self.n_heads,
-            'd_ff': self.d_ff,
-            'dropout': self.dropout
+            "d_model": self.d_model,
+            "n_layers": self.n_layers,
+            "n_heads": self.n_heads,
+            "d_ff": self.d_ff,
+            "dropout": self.dropout,
         }
 
 
@@ -129,13 +129,13 @@ class ModernTCNConfig:
     dropout: float = 0.1
     use_se: bool = True
     dilation_base: int = 2
-    
+
     def to_dict(self) -> Dict:
         return {
-            'channels': self.channels,
-            'kernel_size': self.kernel_size,
-            'dropout': self.dropout,
-            'use_se': self.use_se
+            "channels": self.channels,
+            "kernel_size": self.kernel_size,
+            "dropout": self.dropout,
+            "use_se": self.use_se,
         }
 
 
@@ -145,20 +145,14 @@ _MODEL_CONFIGS = {
     ModelType.XLSTM: xLSTMConfig,
     ModelType.HYPERMIXER: HyperMixerConfig,
     ModelType.TTT: TTTConfig,
-    ModelType.MODERN_TCN: ModernTCNConfig
+    ModelType.MODERN_TCN: ModernTCNConfig,
 }
 
 
-def create_model_config(
-    model_type: ModelType,
-    n_features: int,
-    **kwargs
-) -> ModelConfig:
+def create_model_config(model_type: ModelType, n_features: int, **kwargs) -> ModelConfig:
     config_class = _MODEL_CONFIGS[model_type]
     hyperparams = config_class(**kwargs)
-    
+
     return ModelConfig(
-        model_type=model_type,
-        n_features=n_features,
-        hyperparameters=hyperparams.to_dict()
+        model_type=model_type, n_features=n_features, hyperparameters=hyperparams.to_dict()
     )

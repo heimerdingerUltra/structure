@@ -1,15 +1,15 @@
-from typing import Callable, TypeVar, Iterable, Iterator, Optional, ParamSpec, Generic
-from functools import wraps, reduce
 import operator
-import torch
+from functools import reduce, wraps
+from typing import Callable, Generic, Iterable, Iterator, Optional, ParamSpec, TypeVar
+
 import numpy as np
+import torch
 
-
-A = TypeVar('A')
-B = TypeVar('B')
-C = TypeVar('C')
-P = ParamSpec('P')
-R = TypeVar('R')
+A = TypeVar("A")
+B = TypeVar("B")
+C = TypeVar("C")
+P = ParamSpec("P")
+R = TypeVar("R")
 
 
 def compose(*functions: Callable) -> Callable:
@@ -26,19 +26,20 @@ def curry(fn: Callable) -> Callable:
         if len(args) + len(kwargs) >= fn.__code__.co_argcount:
             return fn(*args, **kwargs)
         return lambda *a, **k: curried(*(args + a), **dict(kwargs, **k))
+
     return curried
 
 
 def memoize(fn: Callable[P, R]) -> Callable[P, R]:
     cache: dict = {}
-    
+
     @wraps(fn)
     def memoized(*args: P.args, **kwargs: P.kwargs) -> R:
         key = str(args) + str(sorted(kwargs.items()))
         if key not in cache:
             cache[key] = fn(*args, **kwargs)
         return cache[key]
-    
+
     return memoized
 
 
@@ -46,6 +47,7 @@ def partial_right(fn: Callable, *args) -> Callable:
     @wraps(fn)
     def wrapper(*a):
         return fn(*a, *args)
+
     return wrapper
 
 
@@ -57,6 +59,7 @@ def complement(predicate: Callable[[A], bool]) -> Callable[[A], bool]:
     @wraps(predicate)
     def complemented(x: A) -> bool:
         return not predicate(x)
+
     return complemented
 
 
@@ -127,62 +130,62 @@ def iterate(fn: Callable[[A], A], initial: A) -> Iterator[A]:
 
 
 class Maybe(Generic[A]):
-    
+
     def __init__(self, value: Optional[A]):
         self._value = value
-    
+
     @staticmethod
-    def of(value: A) -> 'Maybe[A]':
+    def of(value: A) -> "Maybe[A]":
         return Maybe(value)
-    
+
     @staticmethod
-    def empty() -> 'Maybe':
+    def empty() -> "Maybe":
         return Maybe(None)
-    
-    def map(self, fn: Callable[[A], B]) -> 'Maybe[B]':
+
+    def map(self, fn: Callable[[A], B]) -> "Maybe[B]":
         return Maybe(fn(self._value) if self._value is not None else None)
-    
-    def flat_map(self, fn: Callable[[A], 'Maybe[B]']) -> 'Maybe[B]':
+
+    def flat_map(self, fn: Callable[[A], "Maybe[B]"]) -> "Maybe[B]":
         return fn(self._value) if self._value is not None else Maybe.empty()
-    
-    def filter(self, predicate: Callable[[A], bool]) -> 'Maybe[A]':
+
+    def filter(self, predicate: Callable[[A], bool]) -> "Maybe[A]":
         return self if self._value is not None and predicate(self._value) else Maybe.empty()
-    
+
     def get_or_else(self, default: A) -> A:
         return self._value if self._value is not None else default
-    
+
     def is_present(self) -> bool:
         return self._value is not None
 
 
 class Either(Generic[A]):
-    
+
     def __init__(self, value: A | Exception, is_right: bool = True):
         self._value = value
         self._is_right = is_right
-    
+
     @staticmethod
-    def right(value: A) -> 'Either[A]':
+    def right(value: A) -> "Either[A]":
         return Either(value, True)
-    
+
     @staticmethod
-    def left(error: Exception) -> 'Either':
+    def left(error: Exception) -> "Either":
         return Either(error, False)
-    
-    def map(self, fn: Callable[[A], B]) -> 'Either[B]':
+
+    def map(self, fn: Callable[[A], B]) -> "Either[B]":
         if self._is_right:
             try:
                 return Either.right(fn(self._value))
             except Exception as e:
                 return Either.left(e)
         return self
-    
-    def flat_map(self, fn: Callable[[A], 'Either[B]']) -> 'Either[B]':
+
+    def flat_map(self, fn: Callable[[A], "Either[B]"]) -> "Either[B]":
         return fn(self._value) if self._is_right else self
-    
+
     def get_or_else(self, default: A) -> A:
         return self._value if self._is_right else default
-    
+
     def is_right(self) -> bool:
         return self._is_right
 
@@ -194,13 +197,17 @@ def safe(fn: Callable[P, R]) -> Callable[P, Either[R]]:
             return Either.right(fn(*args, **kwargs))
         except Exception as e:
             return Either.left(e)
+
     return safe_fn
 
 
-def tensor_map(fn: Callable[[torch.Tensor], torch.Tensor]) -> Callable[[torch.Tensor], torch.Tensor]:
+def tensor_map(
+    fn: Callable[[torch.Tensor], torch.Tensor],
+) -> Callable[[torch.Tensor], torch.Tensor]:
     @wraps(fn)
     def mapped(x: torch.Tensor) -> torch.Tensor:
         return fn(x)
+
     return mapped
 
 
@@ -208,11 +215,13 @@ def array_map(fn: Callable[[np.ndarray], np.ndarray]) -> Callable[[np.ndarray], 
     @wraps(fn)
     def mapped(x: np.ndarray) -> np.ndarray:
         return fn(x)
+
     return mapped
 
 
 def parallel_map(fn: Callable[[A], B], iterable: Iterable[A], n_workers: int = 4) -> list[B]:
     from concurrent.futures import ThreadPoolExecutor
+
     with ThreadPoolExecutor(max_workers=n_workers) as executor:
         return list(executor.map(fn, iterable))
 
@@ -221,8 +230,10 @@ def timed(fn: Callable[P, R]) -> Callable[P, tuple[R, float]]:
     @wraps(fn)
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> tuple[R, float]:
         import time
+
         start = time.perf_counter()
         result = fn(*args, **kwargs)
         elapsed = time.perf_counter() - start
         return result, elapsed
+
     return wrapper

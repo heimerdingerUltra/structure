@@ -52,7 +52,6 @@ install_system_dependencies() {
         apt-get update
         apt-get install -y \
             python3.10 \
-            python3.10-venv \
             python3-pip \
             git \
             build-essential \
@@ -113,7 +112,7 @@ setup_python_environment() {
     print_info "Setting up Python environment..."
     
     # Create virtual environment
-    python3.10 -m venv venv
+    python -m venv venv
     source venv/bin/activate
     
     # Upgrade pip
